@@ -1,6 +1,6 @@
 # flockjs
-Simple collaborative coding for JS learning
-There is a **on-line demo** deployment available at: https://flockjs.herokuapp.com 
+FlockJS is a simple collaborative coding for JS learning;
+you can try a **on-line demo** deployment at: https://flockjs.herokuapp.com 
 
 ### Running the server
 
