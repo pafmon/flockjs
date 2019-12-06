@@ -56,6 +56,12 @@ function connection(socket) {
         console.log("New msg event by " + socket.id + "(" + uid + ") in room <" + pack.rid + ">:" + toJSON(pack));
     });
 
+    socket.on('giveControl', (pack) => {
+        io.sockets.emit('giveControl', pack);
+        var uid = uids.get(socket.id);
+        console.log("New giveControl event by " + socket.id + "(" + uid + ") in room <" + pack.rid + ">:" + toJSON(pack));
+    });
+
     socket.on('registry', (pack) => {
         uids.set(socket.id, pack.uid);
 
@@ -69,6 +75,12 @@ function connection(socket) {
         if (rooms.has(pack.rid)) {
             console.log("  --> Room already exists.")
             room = rooms.get(pack.rid);
+            socket.emit('giveControl', {
+                uid: pack.uid,
+                rid: pack.rid,
+                sid: socket.id,
+                data: ''
+            });
         } else {
             console.log("  --> New room.")
             room.users = new Array();
