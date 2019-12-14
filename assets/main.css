@@ -32,6 +32,10 @@ body {
     font-size: 80%;
 }
 
+.hidden {
+    display: none !important;
+}
+
 #return {
     display: none;
     margin-left: auto;

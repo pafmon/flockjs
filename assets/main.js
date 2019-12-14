@@ -1,6 +1,8 @@
 var uid = new String((new Date().getTime()) + (new Date().getUTCMilliseconds())).substr(8, 13);
-var rid = window.location.pathname.substring(7);
 
+var pathParams = window.location.pathname.split("/");
+var rid = pathParams[3] + ":" + pathParams[2];
+var mode = pathParams[2];
 
 
 console.log("yai!");
@@ -40,7 +42,7 @@ function setup() {
         lineNumbers: true
     });
 
-    controlling = true;
+    
 
     var lastReceived = "";
 
@@ -70,25 +72,31 @@ function setup() {
         }
     });
 
-    socket.on('giveControl', (pack) => {
+    if (mode == 'controlled') {
+        controlling = true;
 
-        console.log("giveControl event triggered with data <" + toJSON(pack) + "> in room <" + pack.rid + "> ");
+        $("#controlBtn").removeClass("hidden");
 
-        if ((pack.uid == uid) && (pack.rid == rid)) {
-            console.log("  --> Disabling writing on this side!");
-            $("#controlBtn").text("No control");
-            $("#controlBtn").attr("disabled", true);
-            flask.enableReadonlyMode();
-            controlling = false;
-        } else {
-            console.log("  --> Enabling writing on this side!");
-            flask.disableReadonlyMode();
-            $("#controlBtn").text("Give control");
-            $("#controlBtn").attr("disabled", false);
-            controlling = true;
-        }
+        socket.on('giveControl', (pack) => {
 
-    });
+            console.log("giveControl event triggered with data <" + toJSON(pack) + "> in room <" + pack.rid + "> ");
+
+            if ((pack.uid == uid) && (pack.rid == rid)) {
+                console.log("  --> Disabling writing on this side!");
+                $("#controlBtn").text("No control");
+                $("#controlBtn").attr("disabled", true);
+                flask.enableReadonlyMode();
+                controlling = false;
+            } else {
+                console.log("  --> Enabling writing on this side!");
+                flask.disableReadonlyMode();
+                $("#controlBtn").text("Give control");
+                $("#controlBtn").attr("disabled", false);
+                controlling = true;
+            }
+
+        });
+    }
 
     flask.onUpdate((data) => {
         clearResult("none");

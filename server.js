@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 });
 
 
-app.get("/rooms/:rid/", (req, res) => {
+app.get("/rooms/:mode/:rid/", (req, res) => {
     const fileDirectory = __dirname + '/assets/';
 
     res.sendFile('index.html', {
