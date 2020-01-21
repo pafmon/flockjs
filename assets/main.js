@@ -1,6 +1,8 @@
 var uid = new String((new Date().getTime()) + (new Date().getUTCMilliseconds())).substr(8, 13);
-var rid = window.location.pathname.substring(7);
 
+var pathParams = window.location.pathname.split("/");
+var rid = pathParams[3] + ":" + pathParams[2];
+var mode = pathParams[2];
 
 
 console.log("yai!");
@@ -13,6 +15,7 @@ var exercise = {
 
 var flask;
 var socket;
+var controlling;
 
 function toJSON(obj) {
     return JSON.stringify(obj, null, 2);
@@ -38,6 +41,8 @@ function setup() {
         language: 'js',
         lineNumbers: true
     });
+
+    
 
     var lastReceived = "";
 
@@ -67,6 +72,31 @@ function setup() {
         }
     });
 
+    if (mode == 'controlled') {
+        controlling = true;
+
+        $("#controlBtn").removeClass("hidden");
+
+        socket.on('giveControl', (pack) => {
+
+            console.log("giveControl event triggered with data <" + toJSON(pack) + "> in room <" + pack.rid + "> ");
+
+            if ((pack.uid == uid) && (pack.rid == rid)) {
+                console.log("  --> Disabling writing on this side!");
+                $("#controlBtn").text("No control");
+                $("#controlBtn").attr("disabled", true);
+                flask.enableReadonlyMode();
+                controlling = false;
+            } else {
+                console.log("  --> Enabling writing on this side!");
+                flask.disableReadonlyMode();
+                $("#controlBtn").text("Give control");
+                $("#controlBtn").attr("disabled", false);
+                controlling = true;
+            }
+
+        });
+    }
 
     flask.onUpdate((data) => {
         clearResult("none");
@@ -216,3 +246,11 @@ function validate() {
 function valid(v) {
     return v === exercise.solution;
 }
+
+function toggleControlMode() {
+    if (controlling) {
+        console.log("Letting control to the other party!");
+        socket.emit('giveControl', pack(''));
+    }
+}
+   
