@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>FlockJS - Signup page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  </head>
+
+  <body class="bg-gray-200 h-screen font-sans">
+    <div id="app" class="container mx-auto h-full flex justify-center">
+      <div class="w-2/3">
+        <h1 class="m-6 font-hairline text-3xl">
+          Signup to FlockJS
+        </h1>
+        <div
+          class="border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg"
+        >
+          <div
+          v-if="errors.length"
+            class="bg-red-200 border-red-300 border mb-6 rounded"
+          >
+          <p class="text-red-800 text-sm p-2">
+            <b>Please correct the following error(s):</b>
+            <ul class="mb-3">
+              <li class="text-red-800 text-sm pl-2 font-light" v-for="error in errors"> - {{ error }}</li>
+            </ul>
+          </p>
+          </div>
+
+          <div
+          v-if="submitionOk"
+            class="bg-green-200 border-green-300 border mb-6 rounded"
+          >
+          <p class="text-green-800 text-sm p-2">
+            <b>Your details were received succesfully. Check your inbox to check your code.</b>
+          </p>
+          </div>
+          <form @submit.prevent="checkForm">
+            <div class="mb-4">
+              <label class="font-bold text-grey-800 block mb-2"
+                >Full name <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                v-model="details.fullName"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="Your name and surname/s"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Educational email <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                v-model="details.mail"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="The email that your university provides you"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Name of studies <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                v-model="details.nameOfStudies"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="What is the degree you are currently studying?"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Gender <span class="text-red-600">*</span></label
+              >
+              <input
+                type="radio"
+                id="femaleGender"
+                value="Female"
+                v-model="details.gender"
+              />
+              <label for="femaleGender">Female</label>
+              <br />
+              <input
+                type="radio"
+                id="maleGender"
+                value="Male"
+                v-model="details.gender"
+              />
+              <label for="maleGender">Male</label>
+              <br />
+              <input
+                type="radio"
+                id="otherGender"
+                value="Other"
+                v-model="details.gender"
+              />
+              <label for="otherGender">Other</label>
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Age <span class="text-red-600">*</span></label
+              >
+              <input
+                type="number"
+                v-model="details.age"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="How old are you?"
+              />
+            </div>
+
+            <div class="flex items-center justify-between mt-10">
+              <button
+                type="submit"
+                class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded"
+              >
+                Sign up
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="text-center">
+          <p class="text-grey-dark text-sm mb-3">Universidad de Sevilla</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/signup.js"></script>
+  </body>
+</html>
