@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 dbConnect().then(
   async () => {
     const server = await app.listen(PORT, () => {
-      Logger.log("Monitor", "Server", "Listening on port " + PORT);
+      Logger.monitorLog("Listening on port " + PORT);
     });
     const io = socket(server);
     consumer.start(io);

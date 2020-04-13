@@ -2,6 +2,8 @@ require("dotenv").config();
 var express = require("express");
 var bodyParser = require("body-parser");
 const Logger = require("./logger.js");
+const Session = require("./models/Session.js");
+const User = require("./models/User.js");
 
 var app = express();
 
@@ -23,16 +25,42 @@ app.get("/signup", (req, res) => {
 });
 
 app.get("/rooms/:mode/:rid/", (req, res) => {
-  res.sendFile(
-    "index.html",
-    {
-      root: fileDirectory,
-    },
-    (err) => {
-      res.end();
-      if (err) throw err;
-    }
-  );
+  Session.findOne({
+    name: req.query.session,
+    environment: process.env.NODE_ENV,
+  })
+    .then((session) => {
+      if (session) {
+        User.findOne({
+          code: req.query.code,
+          environment: process.env.NODE_ENV,
+        })
+          .then((user) => {
+            if (user && user.subject == req.query.session) {
+              res.sendFile(
+                "index.html",
+                {
+                  root: fileDirectory,
+                },
+                (err) => {
+                  res.end();
+                  if (err) throw err;
+                }
+              );
+            } else {
+              res.sendStatus(401);
+            }
+          })
+          .catch((err) => {
+            res.sendStatus(500);
+          });
+      } else {
+        res.sendStatus(401);
+      }
+    })
+    .catch((err) => {
+      res.sendStatus(500);
+    });
 });
 
 module.exports = app;

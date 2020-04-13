@@ -1,44 +1,43 @@
 require("dotenv").config();
 var express = require("express");
 const router = express.Router();
-const Papa = require("papaparse");
-const fs = require("fs");
+const User = require("../models/User.js");
 const nodemailer = require("nodemailer");
+const Logger = require("../logger.js");
 
-router.post("/login", async (req, res) => {
-  const file = "users.csv";
-  const content = fs.readFileSync(file, "utf8");
-  const results = await Papa.parse(content);
-
+router.post("/login", (req, res) => {
   let responseBody = {
     found: false,
     room: null,
-    user: null
+    code: null,
   };
 
-  for (i = 0; i < results.data.length; i++) {
-    if (
-      results.data[i][1] == req.body.mail &&
-      results.data[i][5] == req.body.code
-    ) {
-      responseBody.found = true;
-      responseBody.room = results.data[i][2];
-      responseBody.user = req.body;
-      break;
-    }
-  }
+  console.log(req.body.code);
 
-  res.status(responseBody.found ? 200 : 401).send(responseBody);
+  User.findOne(
+    { code: req.body.code, environment: process.env.NODE_ENV },
+    (err, user) => {
+      if (user && !err) {
+        responseBody.found = true;
+        responseBody.room = user.room;
+        responseBody.code = user.code;
+      }
+      res.status(responseBody.found ? 200 : 401).send(responseBody);
+    }
+  );
 });
 
 router.post("/signup", async (req, res) => {
   const code = Math.floor(Math.random() * 1000 + 1);
 
-  fs.writeFileSync(
-    "users.csv",
-    `${req.body.fullName},${req.body.mail},${req.body.nameOfStudies},${req.body.gender},${req.body.age},${code}\n`,
-    { flag: "a+" }
-  );
+  const newUser = new User(req.body);
+  newUser.code = code;
+
+  try {
+    await newUser.save();
+  } catch (e) {
+    Logger.monitorLog(e);
+  }
 
   let transporter = nodemailer.createTransport({
     host: "mail.us.es",
@@ -46,8 +45,8 @@ router.post("/signup", async (req, res) => {
     requireTLS: true,
     auth: {
       user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD
-    }
+      pass: process.env.EMAIL_PASSWORD,
+    },
   });
 
   let info = await transporter.sendMail({
@@ -55,7 +54,7 @@ router.post("/signup", async (req, res) => {
     to: "agununare@alum.us.es", // list of receivers
     subject: "Welcome to FlockJS ✔", // Subject line
     text: "Welcome to FlockJS", // plain text body
-    html: `<h1>Welcome to FlockJS</h1><br/><p>Your code in order to participate in the session is the following: <b>${code}</b></p>` // html body
+    html: `<h1>Welcome to FlockJS</h1><br/><p>Your code in order to participate in the session is the following: <b>${code}</b></p>`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);

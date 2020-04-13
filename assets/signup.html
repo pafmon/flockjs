@@ -44,13 +44,25 @@
           <form @submit.prevent="checkForm">
             <div class="mb-4">
               <label class="font-bold text-grey-800 block mb-2"
-                >Full name <span class="text-red-600">*</span></label
+                >First Name <span class="text-red-600">*</span></label
               >
               <input
                 type="text"
-                v-model="details.fullName"
+                v-model="details.firstName"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="Your name and surname/s"
+                placeholder="Your name"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-grey-800 block mb-2"
+                >Surname <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                v-model="details.surname"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="Your surname/s"
               />
             </div>
 
@@ -68,13 +80,37 @@
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Name of studies <span class="text-red-600">*</span></label
+                >Subject <span class="text-red-600">*</span></label
               >
               <input
                 type="text"
-                v-model="details.nameOfStudies"
+                v-model="details.subject"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="What is the degree you are currently studying?"
+                placeholder="What is the name of the subject that is holding this activity?"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Number of subjects this year <span class="text-red-600">*</span></label
+              >
+              <input
+                type="number"
+                v-model="details.numberOfSubjects"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="How many subjects did you enroll on this academic year?"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Year of first enrollement<span class="text-red-600">*</span></label
+              >
+              <input
+                type="number"
+                v-model="details.beganStudying"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="The year on which you began studying your current degree"
               />
             </div>
 
@@ -109,14 +145,22 @@
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Age <span class="text-red-600">*</span></label
+                >Date of birth <span class="text-red-600">*</span></label
               >
               <input
-                type="number"
-                v-model="details.age"
+                type="date"
+                v-model="details.birthDate"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="How old are you?"
+                placeholder="dd/mm/yyyy"
               />
+            </div>
+
+            <div class="mb-4">
+              <label class="text-gray-700" >
+              <input
+                type="checkbox"
+                required
+              /> I accept to participate in the experiment knowing that all the personal data I provide will be kept confidential and will not be publicly available in any way.</label>
             </div>
 
             <div class="flex items-center justify-between mt-10">
@@ -129,8 +173,8 @@
             </div>
           </form>
         </div>
-        <div class="text-center">
-          <p class="text-grey-dark text-sm mb-3">Universidad de Sevilla</p>
+        <div class="text-center p-3">
+          <p class="text-grey-dark text-sm">Universidad de Sevilla</p>
         </div>
       </div>
     </div>

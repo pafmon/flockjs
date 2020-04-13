@@ -17,5 +17,9 @@ class Logger {
       }
     });
   }
+
+  static monitorLog(msg) {
+    this.log("Monitor", "Server", msg);
+  }
 }
 module.exports = Logger;

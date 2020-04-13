@@ -31,25 +31,13 @@
             <p class="text-red-800 text-sm p-2">Invalid credentials.</p>
           </div>
           <form @submit.prevent="onSubmit">
-            <div class="mb-4">
-              <label class="font-bold text-gray-800 block mb-2"
-                >Educational email</label
-              >
-              <input
-                type="text"
-                v-model="credentials.mail"
-                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="Your email"
-              />
-            </div>
-
-            <div class="mb-4">
+            <div class="mb-6">
               <label class="font-bold text-grey-800 block mb-2">Code</label>
               <input
                 type="text"
-                v-model="credentials.code"
+                v-model="code"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="Your Code"
+                placeholder="Enter the provided code to log in"
               />
             </div>
 
