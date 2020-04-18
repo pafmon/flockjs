@@ -15,6 +15,7 @@ const UserSchema = new Schema({
   beganStudying: { type: Number, required: true },
   numberOfSubjects: { type: Number, required: true },
   room: { type: String },
+  token: { type: String },
 });
 
 UserSchema.index({ code: 1 });
