@@ -34,7 +34,7 @@ function pack(data) {
 }
 
 function setup() {
-  var server = "http://localhost:8080";
+  var server = "https://flockjs.herokuapp.com";
   socket = io.connect();
   console.log("Connected with websocket to server " + server);
 

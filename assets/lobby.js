@@ -7,6 +7,11 @@ var app = new Vue({
       tokenId: "",
     };
   },
+  sockets: {
+    sessionStart(val) {
+      window.location.href = "/rooms/controlled/" + val.room;
+    },
+  },
   methods: {
     onSubmit() {
       fetch("/registerUser", {
@@ -18,6 +23,8 @@ var app = new Vue({
         },
       }).then(function (response) {
         if (response.status == 200) {
+          app.$socket.client.emit("clientReady", app.$cookies.get("code"));
+          localStorage.setItem("token", app.$cookies.get("code"));
           app.waitingForPeer = true;
         } else if (response.status == 404) {
           app.invalidToken = true;

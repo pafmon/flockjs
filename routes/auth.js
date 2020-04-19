@@ -54,7 +54,11 @@ router.post("/signup", async (req, res) => {
     to: "agununare@alum.us.es", // list of receivers
     subject: "Welcome to FlockJS ✔", // Subject line
     text: "Welcome to FlockJS", // plain text body
-    html: `<h1>Welcome to FlockJS</h1><br/><p>Your code in order to participate in the session is the following: <b>${code}</b></p>`, // html body
+    html: `
+    <h1>Welcome to FlockJS</h1>
+    <br/>
+    <p>Your code in order to participate in the session is the following: <b>${code}</b></p>
+    <p>But you can click directly <a href="https://flockjs.herokuapp.com/joinSession?code=${code}">here</a> for easy access when the session starts.</p>`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);

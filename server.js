@@ -88,42 +88,16 @@ app.get("/joinSession", async (req, res) => {
 });
 
 app.get("/rooms/:mode/:rid/", (req, res) => {
-  Session.findOne({
-    name: req.query.session,
-    environment: process.env.NODE_ENV,
-  })
-    .then((session) => {
-      if (session) {
-        User.findOne({
-          code: req.query.code,
-          environment: process.env.NODE_ENV,
-        })
-          .then((user) => {
-            if (user && user.subject == req.query.session) {
-              res.sendFile(
-                "index.html",
-                {
-                  root: fileDirectory,
-                },
-                (err) => {
-                  res.end();
-                  if (err) throw err;
-                }
-              );
-            } else {
-              res.sendStatus(401);
-            }
-          })
-          .catch((err) => {
-            res.sendStatus(500);
-          });
-      } else {
-        res.sendStatus(401);
-      }
-    })
-    .catch((err) => {
-      res.sendStatus(500);
-    });
+  res.sendFile(
+    "index.html",
+    {
+      root: fileDirectory,
+    },
+    (err) => {
+      res.end();
+      if (err) throw err;
+    }
+  );
 });
 
 module.exports = app;

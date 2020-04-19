@@ -14,8 +14,9 @@ const UserSchema = new Schema({
   subject: { type: String, required: true },
   beganStudying: { type: Number, required: true },
   numberOfSubjects: { type: Number, required: true },
-  room: { type: String },
+  room: { type: Number },
   token: { type: String },
+  socketId: { type: String },
 });
 
 UserSchema.index({ code: 1 });
