@@ -3,6 +3,8 @@ require("dotenv").config();
 const Logger = require("./logger.js");
 const Session = require("./models/Session.js");
 const User = require("./models/User.js");
+const Room = require("./models/Room.js");
+const Test = require("./models/Test.js");
 
 let uids = new Map();
 let rooms = new Map();
@@ -11,30 +13,17 @@ function toJSON(obj) {
   return JSON.stringify(obj, null, 2);
 }
 
-async function changeNameOfUsers() {
-  let users = await User.find({
-    environment: process.env.NODE_ENV,
-  });
-
-  for (const user of users) {
-    if (user.firstName === "Agustín") {
-      user.testing = "Demo";
-    }
-
-    await user.save();
-  }
-}
-
 async function pairing(session, io) {
+  console.log("Starting the pairing of", session.name);
   let usersWaitingForRoom = await User.find({
-    subject: "TFM",
+    subject: session.name,
     token: { $exists: true },
     room: { $exists: false },
     environment: process.env.NODE_ENV,
   });
 
-  for (const user of usersWaitingForRoom) {
-    const numberOfMaxRoom = await User.aggregate([
+  for (const userTaken of usersWaitingForRoom) {
+    const numberOfMaxRoomArray = await User.aggregate([
       {
         $match: {
           subject: session.name,
@@ -44,10 +33,18 @@ async function pairing(session, io) {
       { $group: { _id: null, max: { $max: "$room" } } },
     ]);
 
+    // Number of the last room that was assigned
+    const numberOfMaxRoom = numberOfMaxRoomArray[0];
+
+    // Update the user (Workaround)
+    const user = await User.findById(userTaken.id);
+
+    // If the user is not assigned to a room yet
     if (typeof user.room === "undefined") {
+      // Take a user to pair with
       const pairedUser = await User.findOne({
-        subject: "TFM",
-        gender: !user.gender,
+        subject: session.name,
+        gender: { $nin: [user.gender] },
         token: session.tokenPairing
           ? { $nin: [user.token], $exists: true }
           : { $exists: true },
@@ -56,16 +53,15 @@ async function pairing(session, io) {
       });
 
       if (pairedUser) {
-        if (numberOfMaxRoom.max >= 0) {
+        console.log("We found a great user to pair with!");
+        if (numberOfMaxRoom.max != null) {
           user.room = numberOfMaxRoom.max + 1;
           pairedUser.room = numberOfMaxRoom.max + 1;
         } else {
           user.room = 0;
           pairedUser.room = 0;
         }
-        await user.save().then(() => {
-          console.log("Saved!");
-        });
+        await user.save();
         await pairedUser.save();
 
         io.to(user.socketId).emit("sessionStart", {
@@ -76,8 +72,8 @@ async function pairing(session, io) {
         });
       } else {
         const anyOtherUser = await User.findOne({
-          subject: "TFM",
-          code: !user.code,
+          subject: session.name,
+          code: { $nin: [user.code] },
           token: session.tokenPairing
             ? { $nin: [user.token], $exists: true }
             : { $exists: true },
@@ -86,7 +82,7 @@ async function pairing(session, io) {
         });
 
         if (anyOtherUser) {
-          if (numberOfMaxRoom.max >= 0) {
+          if (numberOfMaxRoom.max != null) {
             user.room = numberOfMaxRoom.max + 1;
             anyOtherUser.room = numberOfMaxRoom.max + 1;
           } else {
@@ -103,17 +99,13 @@ async function pairing(session, io) {
             room: session.name + anyOtherUser.room,
           });
         } else {
-          if (numberOfMaxRoom.max >= 0) {
-            console.log("Entro con max");
+          if (numberOfMaxRoom.max !== null) {
             user.room = numberOfMaxRoom.max + 1;
           } else {
-            console.log("Entró en 0");
             user.room = 0;
           }
-          user.room = 0;
-          await user.save().then(() => {
-            console.log("Saved!");
-          });
+
+          await user.save();
           io.to(user.socketId).emit("sessionStart", {
             room: session.name + user.room,
           });
@@ -124,7 +116,56 @@ async function pairing(session, io) {
       }
     }
   }
+
   console.log("Pairing done!");
+}
+
+async function exerciseTimeUp(id, description) {
+  console.log("Friend ", id, " is out of time!");
+  const user = await User.findOne({
+    socketId: id,
+    environment: process.env.NODE_ENV,
+  });
+  if (user) {
+    const room = await Room.findOne({
+      session: user.subject,
+      name: user.room.toString(),
+      environment: process.env.NODE_ENV,
+    });
+    if (room) {
+      const test = await Test.findOne({
+        orderNumber: room.currentTest,
+        environment: process.env.NODE_ENV,
+        session: user.subject,
+      });
+
+      const exercise = test.exercises[room.lastExercise];
+
+      if (exercise) {
+        if (test.exercises[room.lastExercise + 1]) {
+          console.log("They are going to the next exercise");
+          room.lastExercise += 1;
+          await room.save();
+        } else {
+          const nextTest = await Test.findOne({
+            orderNumber: room.currentTest + 1,
+            environment: process.env.NODE_ENV,
+            session: user.subject,
+          });
+          if (nextTest) {
+            console.log("They got a new test (Prueba)");
+            room.lastExercise = 0;
+            room.test += 1;
+            await room.save();
+          } else {
+            console.log("They finished");
+            room.finished = true;
+            await room.save();
+          }
+        }
+      }
+    }
+  }
 }
 
 module.exports = {
@@ -145,6 +186,7 @@ module.exports = {
           name: user.subject,
           environment: process.env.NODE_ENV,
         });
+        console.log(session);
         if (session && session.active) {
           user.socketId = socket.id; // TODO: Will be placed outside this function at some point
           await user.save();
@@ -156,17 +198,29 @@ module.exports = {
           );
 
           let usersCountSupposedToConnectNotReady = await User.countDocuments({
-            subject: "TFM",
+            subject: session.name,
             token: { $exists: false },
             room: { $exists: false },
             environment: process.env.NODE_ENV,
           });
-
+          console.log(
+            "Faltan " + usersCountSupposedToConnectNotReady + " usuarios..."
+          );
           if (usersCountSupposedToConnectNotReady == 0) {
             console.log("Pairing...");
-            await changeNameOfUsers();
             await pairing(session, io);
           }
+        }
+      });
+
+      socket.on("clientReconnection", async (pack) => {
+        const user = await User.findOne({
+          code: pack,
+          environment: process.env.NODE_ENV,
+        });
+        if (user) {
+          user.socketId = socket.id;
+          await user.save();
         }
       });
 
@@ -282,6 +336,18 @@ module.exports = {
           sid: socket.id,
           data: room.lastText,
         });
+      });
+
+      socket.on("nextExercise", async (pack) => {
+        io.sockets.emit("nextExercise", {
+          uid: pack.uid,
+          rid: pack.rid,
+          sid: socket.id,
+          data: pack.data,
+        });
+        if (!pack.data.gotRight) {
+          await exerciseTimeUp(socket.id, pack.data);
+        }
       });
     }
 

@@ -35,35 +35,39 @@ router.post("/signup", async (req, res) => {
 
   try {
     await newUser.save();
-  } catch (e) {
-    Logger.monitorLog(e);
-  }
 
-  let transporter = nodemailer.createTransport({
-    host: "mail.us.es",
-    port: 587,
-    requireTLS: true,
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
+    let transporter = nodemailer.createTransport({
+      host: "mail.us.es",
+      port: 587,
+      requireTLS: true,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
 
-  let info = await transporter.sendMail({
-    from: '"FlockJS Team 👨🏽‍💻" <no-reply@flockjs.com>', // sender address
-    to: "agununare@alum.us.es", // list of receivers
-    subject: "Welcome to FlockJS ✔", // Subject line
-    text: "Welcome to FlockJS", // plain text body
-    html: `
+    let info = await transporter.sendMail({
+      from: '"FlockJS Team 👨🏽‍💻" <no-reply@flockjs.com>', // sender address
+      to: newUser.mail, // list of receivers
+      subject: "Welcome to FlockJS ✔", // Subject line
+      text: "Welcome to FlockJS", // plain text body
+      html: `
     <h1>Welcome to FlockJS</h1>
     <br/>
     <p>Your code in order to participate in the session is the following: <b>${code}</b></p>
     <p>But you can click directly <a href="https://flockjs.herokuapp.com/joinSession?code=${code}">here</a> for easy access when the session starts.</p>`, // html body
-  });
+    });
 
-  console.log("Message sent: %s", info.messageId);
-
-  res.sendStatus(200);
+    Logger.monitorLog("Message sent: %s", info.messageId);
+    res.sendStatus(200);
+  } catch (e) {
+    Logger.monitorLog(e);
+    if (e.name == "ValidationError") {
+      res.sendStatus(400);
+    } else {
+      res.sendStatus(500);
+    }
+  }
 });
 
 module.exports = router;

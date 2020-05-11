@@ -16,10 +16,16 @@ app.use(cookieParser());
 const fileDirectory = __dirname + "/assets/";
 
 const auth = require("./routes/auth");
+const tests = require("./routes/tests.js");
 app.use(auth);
+app.use(tests);
 
 app.get("/", (req, res) => {
   res.sendFile("login.html", { root: fileDirectory });
+});
+
+app.get("/finished", (req, res) => {
+  res.sendFile("finish.html", { root: fileDirectory });
 });
 
 app.get("/signup", (req, res) => {

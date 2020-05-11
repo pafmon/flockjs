@@ -65,7 +65,11 @@ var app = new Vue({
     onSubmit() {
       // Because Safari doesn't have input="date"
       // This check is necesary
-      if (!(app.details.birthDate instanceof Date)) {
+      console.log(new Date(app.details.birthDate));
+      if (
+        !(app.details.birthDate instanceof Date) &&
+        new Date(app.details.birthDate) === "Invalid Date"
+      ) {
         const dateArray = app.details.birthDate.split("/");
         app.details.birthDate = new Date(
           `${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`

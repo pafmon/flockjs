@@ -17,6 +17,8 @@ const UserSchema = new Schema({
   room: { type: Number },
   token: { type: String },
   socketId: { type: String },
+  lastExercise: { type: Number },
+  currentTest: { type: Number },
 });
 
 UserSchema.index({ code: 1 });
