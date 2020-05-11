@@ -6,8 +6,6 @@ var pathParams = window.location.pathname.split("/");
 var rid = pathParams[3] + ":" + pathParams[2];
 var mode = pathParams[2];
 
-console.log("yai!");
-
 var exercise = {
   problem:
     "Write a JavaScript code that returns the sum of the multiples of 3 and 5 under 1000",
@@ -34,7 +32,7 @@ function pack(data) {
 }
 
 function setup() {
-  var server = "https://flockjs.herokuapp.com";
+  var server = "http://localhost:3000/";
   socket = io.connect();
   console.log("Connected with websocket to server " + server);
 

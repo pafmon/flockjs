@@ -89,7 +89,7 @@ app.get("/joinSession", async (req, res) => {
 
 app.get("/rooms/:mode/:rid/", (req, res) => {
   res.sendFile(
-    "index.html",
+    "main.html",
     {
       root: fileDirectory,
     },
