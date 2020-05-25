@@ -13,6 +13,10 @@ function toJSON(obj) {
   return JSON.stringify(obj, null, 2);
 }
 
+async function wait(ms) {
+  await setTimeout(() => {}, ms);
+}
+
 async function pairing(session, io) {
   console.log("Starting the pairing of", session.name);
   let usersWaitingForRoom = await User.find({
@@ -70,6 +74,9 @@ async function pairing(session, io) {
         io.to(pairedUser.socketId).emit("sessionStart", {
           room: session.name + pairedUser.room,
         });
+        setTimeout(function () {
+          executeSession(session.name, io);
+        }, 5000);
       } else {
         const anyOtherUser = await User.findOne({
           subject: session.name,
@@ -168,6 +175,64 @@ async function exerciseTimeUp(id, description) {
   }
 }
 
+async function executeSession(sessionName, io) {
+  console.log("Starting debug session...");
+  const session = await Session.findOne({
+    name: sessionName,
+    environment: process.env.NODE_ENV,
+  });
+
+  const tests = await Test.find({
+    session: session.name,
+    environment: process.env.NODE_ENV,
+  });
+
+  const numTests = tests.length;
+
+  let timer = 0;
+  let maxExercises = tests[session.testCounter].exercises.length;
+  io.to(sessionName).emit("loadTest", {
+    data: { testDescription: tests[0].description },
+  });
+  const interval = setInterval(function () {
+    if (session.testCounter == numTests) {
+      console.log("Oh there are no more tests, you finished!");
+      io.to(sessionName).emit("finish");
+      clearInterval(interval);
+    } else if (timer > 0) {
+      io.to(sessionName).emit("countDown", {
+        data: timer,
+      });
+      console.log(timer);
+      timer--;
+    } else if (session.exerciseCounter == maxExercises) {
+      console.log("Going to the next test!");
+      session.testCounter++;
+      session.exerciseCounter = -1;
+    } else if (session.exerciseCounter === -1) {
+      io.to(sessionName).emit("loadTest", {
+        data: {
+          testDescription: tests[session.testCounter].description,
+        },
+      });
+      timer = 2;
+      session.exerciseCounter = 0;
+    } else {
+      console.log("Starting new exercise!");
+      let exercise =
+        tests[session.testCounter].exercises[session.exerciseCounter];
+      io.to(sessionName).emit("newExercise", {
+        data: {
+          maxTime: exercise.time,
+          exerciseDescription: exercise.description,
+        },
+      });
+      timer = exercise.time;
+      session.exerciseCounter++;
+    }
+  }, 1000);
+}
+
 module.exports = {
   start: function (io) {
     function connection(socket) {
@@ -220,6 +285,8 @@ module.exports = {
         });
         if (user) {
           user.socketId = socket.id;
+          console.log("Reconnecting in session " + user.subject);
+          socket.join(user.subject);
           await user.save();
         }
       });
@@ -349,6 +416,13 @@ module.exports = {
           await exerciseTimeUp(socket.id, pack.data);
         }
       });
+
+      socket.on("startDebugSession", async (pack) => {
+        if (process.env.NODE_ENV === "local") await executeSession("TFM", io);
+      });
+
+      // In case of a failure in the connection.
+      io.to(socket.id).emit("reconnect");
     }
 
     io.on("connection", connection);

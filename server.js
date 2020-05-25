@@ -28,6 +28,10 @@ app.get("/finished", (req, res) => {
   res.sendFile("finish.html", { root: fileDirectory });
 });
 
+app.get("/admin", (req, res) => {
+  res.sendFile("admin.html", { root: fileDirectory });
+});
+
 app.get("/signup", (req, res) => {
   res.sendFile("signup.html", { root: fileDirectory });
 });

@@ -18,6 +18,11 @@ var app = new Vue({
       lastReceived: "",
       exerciseDescription: "Please, wait until the exercise loads...",
       exerciseLoaded: false,
+      testDescription: "",
+      finished: false,
+      starting: true,
+      loadingTest: false,
+      peerChange: false,
       timeInterval: null,
       maxTime: 0,
       timePassed: 0,
@@ -33,9 +38,6 @@ var app = new Vue({
     },
   },
   sockets: {
-    sessionStart(val) {
-      window.location.href = "/rooms/controlled/" + val.room;
-    },
     msg(pack) {
       if (pack.uid != this.uid && pack.rid == this.rid) {
         console.log(
@@ -56,11 +58,41 @@ var app = new Vue({
         console.log("  --> Ignored!");
       }
     },
-    nextExercise(pack) {
-      if (pack.uid != this.uid && pack.rid == this.rid) {
-        console.log("Next exercise please!");
-        this.onTimesUp();
-        setTimeout(() => this.loadExercise(), 2000);
+    finish() {
+      this.finished = true;
+    },
+    loadTest(pack) {
+      this.finished = false;
+      this.loadingTest = true;
+      this.starting = false;
+      this.testDescription = pack.data.testDescription;
+      this.peerChange = !this.peerChange;
+      this.$refs.messageContainer.innerHTML = "";
+    },
+    newExercise(pack) {
+      this.loadingTest = false;
+      this.maxTime = pack.data.maxTime;
+      this.timePassed = 0;
+      this.$refs.progressBar.style.width = "100%";
+      this.$refs.progressBar.classList.remove("bg-red-500");
+      this.$refs.progressBar.classList.add("bg-green-500");
+      this.exerciseDescription = pack.data.exerciseDescription;
+    },
+    reconnect() {
+      this.$socket.client.emit("clientReconnection", localStorage.token);
+    },
+    countDown(pack) {
+      this.timePassed = this.maxTime - pack.data;
+      console.log("Counting down!");
+      let factor = 100 / this.maxTime;
+      let width = parseFloat(this.$refs.progressBar.style.width, 10) - factor;
+      this.$refs.progressBar.style.width = width + "%";
+      if (width < 20) {
+        this.$refs.progressBar.classList.remove("bg-yellow-500");
+        this.$refs.progressBar.classList.add("bg-red-500");
+      } else if (width < 40) {
+        this.$refs.progressBar.classList.remove("bg-green-500");
+        this.$refs.progressBar.classList.add("bg-yellow-500");
       }
     },
   },
@@ -91,13 +123,6 @@ var app = new Vue({
         );
       }
     },
-    timePassed: function (newValue) {
-      if (newValue === this.maxTime) {
-        this.$socket.client.emit("nextExercise", this.pack(""));
-        this.onTimesUp();
-        setTimeout(() => this.loadExercise(), 2000);
-      }
-    },
   },
   methods: {
     sendMessage() {
@@ -106,13 +131,13 @@ var app = new Vue({
 
       this.myMessage = "";
     },
-    newMessage(msg, mine, girl) {
+    newMessage(msg, mine) {
       const MessageClass = Vue.extend(Message);
       const msgInstance = new MessageClass({
         propsData: {
           mine: mine,
           message: msg,
-          girl: girl,
+          girl: this.peerChange,
         },
       });
 
@@ -146,19 +171,7 @@ var app = new Vue({
       }).then(function (response) {
         if (response.status == 200) {
           response.json().then((data) => {
-            console.log(data);
-            if (data.finished) {
-              window.location.href = "/finished";
-            } else {
-              app.isExerciseCorrect = data.result;
-              if (data.result) {
-                app.$socket.client.emit(
-                  "nextExercise",
-                  app.pack({ gotRight: true })
-                );
-                setTimeout(() => app.loadExercise(), 2000);
-              }
-            }
+            app.isExerciseCorrect = data.result;
           });
         }
       });
@@ -207,13 +220,6 @@ var app = new Vue({
     evaluateCode(code) {
       return Function('"use strict";' + code)();
     },
-    startTimer() {
-      this.timeInterval = setInterval(() => (this.timePassed += 1), 1000);
-    },
-    onTimesUp() {
-      this.timePassed = 0;
-      clearInterval(this.timeInterval);
-    },
   },
   computed: {
     cm() {
@@ -222,6 +228,9 @@ var app = new Vue({
   },
   mounted() {
     console.log("the codemirror instance object", this.cm);
-    this.loadExercise();
+    //this.loadExercise();
+    this.$refs.progressBar.style.width = `${
+      ((this.maxTime - this.timePassed) / this.maxTime) * 100
+    }%`;
   },
 });

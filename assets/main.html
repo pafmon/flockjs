@@ -64,7 +64,14 @@
 
   <body>
     <div id="app">
-      <div class="container h-screen mx-auto">
+      <div class="container h-screen mx-auto" v-if="!finished && !starting">
+        <div class="shadow w-full bg-grey-light h-3">
+          <div
+            ref="progressBar"
+            class="bg-green-500 text-xs leading-none py-1 text-center text-white h-3"
+            style="transition: 1s; width: 100%;"
+          ></div>
+        </div>
         <div class="flex h-full flex-wrap">
           <div class="w-2/3 p-2">
             <div>{{ maxTime - timePassed | secondsToString }}</div>
@@ -83,21 +90,21 @@
               v-if="isExerciseCorrect"
               class="bg-green-200 p-3 rounded-md border text-gray-800"
             >
-              <p>Yes! You got it right!</p>
+              <p>Great, you got it right! We will let the rest of the people finish. Please, wait until the time is up.</p>
             </div>
             <div
               v-if="isExerciseCorrect===false"
               class="bg-red-200 p-3 rounded-md border text-gray-800"
             >
-              <p>Sorry, this is not the right solution.</p>
+              <p>Sorry, this is not the right solution. Try again!</p>
             </div>
             <div class="mt-2">
-              <button
+              <!--<button
                 class="bg-yellow-800 hover:bg-yellow-700 p-3 text-white shadow-md focus:outline-none focus:shadow-outline m-1"
                 onClick="toggleControlMode();"
               >
                 Give control
-              </button>
+              </button>-->
               <button
                 class="bg-teal-600 hover:bg-teal-500 p-3 text-white shadow-md focus:outline-none focus:shadow-outline m-1"
                 @click="validate()"
@@ -139,7 +146,35 @@
           </div>
         </div>
       </div>
+      <div v-if="finished"
+        class="container mx-auto h-screen flex justify-center items-center"
+      >
+      <div class="max-w-lg">
+        <h1 class="mb-6 text-center font-hairline text-3xl">
+          Session is over
+        </h1>
+        <div
+          class="bg-teal-100 border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg m-5"
+        >
+        <h1 class="font-bold text-2xl mb-4">Congratulations!</h1>
+        <p class="font-medium">Thank you for participating in this session. Further questions about the experiment SESSIONID can be sent to: xxxx@xxxx.org, with the subject [FLOCK SESSIONID]
+        </p>
+        </div>
+        <div class="text-center">
+          <p class="text-grey-dark text-sm">Universidad de Sevilla</p>
+        </div>
+      </div>
     </div>
+    <div v-if="starting" class="fixed h-full w-full top-0 z-50 flex justify-center items-center" style="backdrop-filter: blur(2px);">
+      <img src="/static/img/Loopi_Logo.png" class="w-48"/>
+    </div>
+    <div v-if="loadingTest" class="fixed h-full w-full top-0 z-50 flex justify-center items-center" style="backdrop-filter: blur(2px);">
+      <div
+      class="border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg m-5 w-2/3"
+    >
+    <h1 class="font-bold text-2xl mb-4">A new test begins!</h1>
+    <p class="font-medium">{{ testDescription }}</p>
+    </div></div>
     <script type="module" src="/assets/main.vue.js"></script>
     <style>
       .CodeMirror {
