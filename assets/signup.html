@@ -16,33 +16,13 @@
 
   <body class="bg-gray-200 h-screen font-sans">
     <div id="app" class="container mx-auto h-full flex justify-center">
-      <div class="w-2/3">
+      <div v-if="!submitionOk" class="w-2/3">
         <h1 class="m-6 font-hairline text-3xl">
           Signup to FlockJS
         </h1>
         <div
           class="border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg"
         >
-          <div
-          v-if="errors.length"
-            class="bg-red-200 border-red-300 border mb-6 rounded"
-          >
-          <p class="text-red-800 text-sm p-2">
-            <b>Please correct the following error(s):</b>
-            <ul class="mb-3">
-              <li class="text-red-800 text-sm pl-2 font-light" v-for="error in errors"> - {{ error }}</li>
-            </ul>
-          </p>
-          </div>
-
-          <div
-          v-if="submitionOk"
-            class="bg-green-200 border-green-300 border mb-6 rounded"
-          >
-          <p class="text-green-800 text-sm p-2">
-            <b>Your details were received succesfully. Check your inbox to check your code.</b>
-          </p>
-          </div>
           <form @submit.prevent="checkForm">
             <div class="mb-4">
               <label class="font-bold text-grey-800 block mb-2"
@@ -88,25 +68,28 @@
                 type="text"
                 v-model="details.subject"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="What is the name of the session that is holding this activity?"
+                placeholder="This code should have been provided to you by the organizers."
               />
             </div>
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Number of subjects this year <span class="text-red-600">*</span></label
+                >Number of subjects this year
+                <span class="text-red-600">*</span></label
               >
               <input
                 type="number"
                 v-model="details.numberOfSubjects"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="How many subjects did you enroll on this academic year?"
+                placeholder="Number of subjects in the current course."
               />
             </div>
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Year of first enrollement<span class="text-red-600">*</span></label
+                >Year of first enrollement<span class="text-red-600"
+                  >*</span
+                ></label
               >
               <input
                 type="number"
@@ -135,14 +118,6 @@
                 v-model="details.gender"
               />
               <label for="maleGender">Male</label>
-              <br />
-              <input
-                type="radio"
-                id="otherGender"
-                value="Other"
-                v-model="details.gender"
-              />
-              <label for="otherGender">Other</label>
             </div>
 
             <div class="mb-4">
@@ -158,11 +133,13 @@
             </div>
 
             <div class="mb-4">
-              <label class="text-gray-700" >
-              <input
-                type="checkbox"
-                required
-              /> I accept to participate in the experiment knowing that all the personal data I provide will be kept confidential and will not be publicly available in any way.</label>
+              <label class="text-gray-700">
+                <input type="checkbox" required /> I accept to participate in
+                the experiment knowing that all the personal data I provide will
+                be kept confidential and will not be publicly available. Though
+                some aggregated and annonimized data could be analized for
+                research purposes.</label
+              >
             </div>
 
             <div class="flex items-center justify-between mt-10">
@@ -173,14 +150,51 @@
                 Sign up
               </button>
             </div>
+            <div
+              v-if="errors.length"
+                class="bg-red-200 border-red-300 border mt-6 mb-3 rounded"
+              >
+              <p class="text-red-800 text-sm p-2">
+                <b>Please correct the following error(s):</b>
+                <ul class="mb-3">
+                  <li class="text-red-800 text-sm pl-2 font-light" v-for="error in errors"> - {{ error }}</li>
+                </ul>
+              </p>
+              </div>
           </form>
         </div>
-        <div class="text-center p-3">
-          <p class="text-grey-dark text-sm">Universidad de Sevilla</p>
+        <div class="text-center">
+          <p class="text-grey-dark text-sm inline">
+            Universidad de Sevilla
+          </p>
+          <p class="text-grey-dark text-sm inline font-hairline mr-1 ml-1">|</p>
+          <p class="text-grey-dark text-sm inline">
+            University of California, Berkeley
+          </p>
+        </div>
+      </div>
+      <div v-if="submitionOk" class="w-1/3">
+        <div>
+          <div
+            class="bg-teal-100 border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg m-5"
+          >
+          <h1 class="font-bold text-2xl mb-4">Thanks for participating!</h1>
+          <p class="font-medium">You will receive the instructions by email. For any other inquiries please contact with xxxx@xxxxxx.org. 
+            Meanwhile, questions about the experiment SESSIONID can be sent to: xxxxx@xxxxx.org, with the subject: "FLOCK SESSIONID"
+          </p>
+          </div>
+          <div class="text-center">
+            <p class="text-grey-dark text-sm inline">
+              Universidad de Sevilla
+            </p>
+            <p class="text-grey-dark text-sm inline font-hairline mr-1 ml-1">|</p>
+            <p class="text-grey-dark text-sm inline">
+              University of California, Berkeley
+            </p>
+          </div>
         </div>
       </div>
     </div>
-
     <script src="/assets/signup.js"></script>
   </body>
 </html>
