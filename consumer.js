@@ -74,9 +74,6 @@ async function pairing(session, io) {
         io.to(pairedUser.socketId).emit("sessionStart", {
           room: session.name + pairedUser.room,
         });
-        setTimeout(function () {
-          executeSession(session.name, io);
-        }, 5000);
       } else {
         const anyOtherUser = await User.findOne({
           subject: session.name,
@@ -125,6 +122,9 @@ async function pairing(session, io) {
   }
 
   console.log("Pairing done!");
+  setTimeout(function () {
+    executeSession(session.name, io);
+  }, 5000);
 }
 
 async function exerciseTimeUp(id, description) {
@@ -176,7 +176,7 @@ async function exerciseTimeUp(id, description) {
 }
 
 async function executeSession(sessionName, io) {
-  console.log("Starting debug session...");
+  console.log("Starting session...");
   const session = await Session.findOne({
     name: sessionName,
     environment: process.env.NODE_ENV,
@@ -210,25 +210,30 @@ async function executeSession(sessionName, io) {
       session.testCounter++;
       session.exerciseCounter = -1;
     } else if (session.exerciseCounter === -1) {
+      console.log("Loading test");
       io.to(sessionName).emit("loadTest", {
         data: {
           testDescription: tests[session.testCounter].description,
         },
       });
-      timer = 2;
+      timer = tests[session.testCounter].time;
       session.exerciseCounter = 0;
     } else {
       console.log("Starting new exercise!");
       let exercise =
         tests[session.testCounter].exercises[session.exerciseCounter];
-      io.to(sessionName).emit("newExercise", {
-        data: {
-          maxTime: exercise.time,
-          exerciseDescription: exercise.description,
-        },
-      });
-      timer = exercise.time;
+      if (exercise) {
+        console.log(exercise.description);
+        io.to(sessionName).emit("newExercise", {
+          data: {
+            maxTime: exercise.time,
+            exerciseDescription: exercise.description,
+          },
+        });
+        timer = exercise.time;
+      }
       session.exerciseCounter++;
+      session.save();
     }
   }, 1000);
 }

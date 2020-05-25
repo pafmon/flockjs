@@ -73,6 +73,7 @@ var app = new Vue({
       this.loadingTest = false;
       this.maxTime = pack.data.maxTime;
       this.timePassed = 0;
+      this.isExerciseCorrect = null;
       this.$refs.progressBar.style.width = "100%";
       this.$refs.progressBar.classList.remove("bg-red-500");
       this.$refs.progressBar.classList.add("bg-green-500");
@@ -163,7 +164,7 @@ var app = new Vue({
         method: "POST",
         body: JSON.stringify({
           solution: v,
-          user: localStorage.token,
+          user: Number(localStorage.token),
         }),
         headers: {
           "Content-Type": "application/json",

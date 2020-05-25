@@ -8,6 +8,7 @@ const TestSchema = new Schema({
   exercises: { type: Array },
   activeSince: { type: Date },
   orderNumber: { type: Number },
+  time: { type: Number },
 });
 
 module.exports = mongoose.model("Test", TestSchema);

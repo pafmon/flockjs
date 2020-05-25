@@ -5,6 +5,7 @@ const Test = require("../models/Test.js");
 const Logger = require("../logger.js");
 const User = require("../models/User.js");
 const Room = require("../models/Room.js");
+const Session = require("../models/Session.js");
 
 router.get("/test", async (req, res) => {
   const user = await User.findOne({
@@ -63,47 +64,31 @@ router.post("/verify", async (req, res) => {
     environment: process.env.NODE_ENV,
   });
 
+  console.log("Verifying...");
+
   if (user) {
-    let room = await Room.findOne({
-      name: user.room,
+    console.log("User " + user.token);
+    let session = await Session.findOne({
+      name: user.subject,
       environment: process.env.NODE_ENV,
     });
-
+    console.log(
+      "Trying with " + session.testCounter + " " + session.exerciseCounter
+    );
     const test = await Test.findOne({
-      orderNumber: room.currentTest,
+      orderNumber: session.testCounter,
       environment: process.env.NODE_ENV,
       session: user.subject,
     });
 
-    const exercise = test.exercises[room.lastExercise];
+    const exercise = test.exercises[session.exerciseCounter - 1];
 
     if (exercise) {
+      console.log("Validating exercise " + exercise.description);
       const solution = exercise.solution;
 
       if (solution === req.body.solution) {
-        // Right solution, now let's update the next exercise
-
-        if (test.exercises[room.lastExercise + 1]) {
-          room.lastExercise += 1;
-          await room.save();
-          res.send({ result: true });
-        } else {
-          const nextTest = await Test.findOne({
-            orderNumber: room.currentTest + 1,
-            environment: process.env.NODE_ENV,
-            session: req.body.session,
-          });
-          if (nextTest) {
-            room.lastExercise = 0;
-            room.test += 1;
-            await room.save();
-            res.send({ result: true });
-          } else {
-            room.finished = true;
-            await room.save();
-            res.send({ result: true, finished: true });
-          }
-        }
+        res.send({ result: true });
       } else {
         res.send({ result: false });
       }
