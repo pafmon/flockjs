@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>FlockJS - Signup page</title>
+    <title>Twin Code - Signup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/icon" href="/static/favicon.ico" />
 
@@ -14,14 +14,21 @@
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   </head>
 
-  <body class="bg-gray-200 h-screen font-sans">
+  <body class="bg-orange-200 h-screen font-sans">
     <div id="app" class="container mx-auto h-full flex justify-center">
-      <div v-if="!submitionOk" class="w-2/3">
-        <h1 class="m-6 font-hairline text-3xl">
-          Signup to FlockJS
+      <div v-if="!submitionOk" class="w-full lg:w-2/3 p-3">
+        <img class="w-2/3 p-3" src="/static/TwinCodeLogo.svg"/>
+        <div class="mb-3 ml-3">
+        <h1 class="text-4xl inline ml-0" style="font-family: 'Comic Sans MS', 'Comic Sans'; font-weight: bold; color: #F50016;">
+        <</h1>
+        <h1 class="ml-0 mr-0 text-4xl inline font-thin">
+          Signup
         </h1>
+        <h1 class="text-4xl inline" style="font-family: 'Comic Sans MS', 'Comic Sans'; font-weight: bold; color: #F50016;">>
+        </h1>
+      </div>
         <div
-          class="border-teal-600 p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg"
+          class="border-orange-400 p-8 border-t-8 bg-white mb-3 rounded-lg shadow-lg"
         >
           <form @submit.prevent="checkForm">
             <div class="mb-4">
@@ -50,16 +57,30 @@
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Educational email <span class="text-red-600">*</span></label
+                >Email <span class="text-red-600">*</span></label
               >
               <input
-                type="text"
+                type="email"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 v-model="details.mail"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
-                placeholder="The email that your university provides you"
+                placeholder="Your personal email"
               />
             </div>
 
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Academic email<span class="text-red-600"></span></label
+              >
+              <input
+                type="email"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                v-model="details.academicMail"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="In case is different from your personal email"
+              />
+            </div>
+            <!-- TODO: Personal email -->
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
                 >Session <span class="text-red-600">*</span></label
@@ -87,7 +108,7 @@
 
             <div class="mb-4">
               <label class="font-bold text-gray-800 block mb-2"
-                >Year of first enrollement<span class="text-red-600"
+                >Year of first enrollement <span class="text-red-600"
                   >*</span
                 ></label
               >
@@ -96,6 +117,21 @@
                 v-model="details.beganStudying"
                 class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
                 placeholder="The year on which you began studying your current degree"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="font-bold text-gray-800 block mb-2"
+                >Programming languages you know <span class="text-red-600"
+                  >*</span
+                ></label
+              >
+              <input
+                type="text"
+                v-model="details.knownLanguages"
+                pattern="(((.)*,)*)(.)*"
+                class="block appearance-none w-full bg-white border border-gray-200 hover:border-grey px-2 py-2 rounded shadow"
+                placeholder="Write the programming languages you know separated by comma"
               />
             </div>
 
@@ -145,7 +181,7 @@
             <div class="flex items-center justify-between mt-10">
               <button
                 type="submit"
-                class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded"
+                class="bg-orange-500 hover:bg-orange-300 text-white font-bold py-2 px-4 rounded"
               >
                 Sign up
               </button>
@@ -163,7 +199,16 @@
               </div>
           </form>
         </div>
-        <div class="text-center">
+        <div class="mb-6 ml-3">
+        <h1 class="text-4xl inline ml-0" style="font-family: 'Comic Sans MS', 'Comic Sans'; font-weight: bold; color: #F50016;">
+          <&#47;</h1>
+          <h1 class="ml-0 mr-0 text-4xl inline font-thin">
+            Signup
+          </h1>
+          <h1 class="text-4xl inline" style="font-family: 'Comic Sans MS', 'Comic Sans'; font-weight: bold; color: #F50016;">>
+          </h1>
+        </div>
+        <div class="text-center pb-5">
           <p class="text-grey-dark text-sm inline">
             Universidad de Sevilla
           </p>

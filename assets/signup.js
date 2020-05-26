@@ -8,11 +8,13 @@ var app = new Vue({
         firstName: "",
         surname: "",
         mail: "",
+        academicMail: "",
         gender: null,
         birthDate: null,
         subject: "",
         beganStudying: null,
         numberOfSubjects: null,
+        knownLanguages: "",
       },
       submitionOk: false,
     };
