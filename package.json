@@ -18,7 +18,7 @@
     "nodemailer": "^6.4.6",
     "papaparse": "^5.1.1",
     "pug": "^2.0.4",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.4.0"
   },
   "repository": {
     "type": "git",
